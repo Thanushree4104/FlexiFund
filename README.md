@@ -1,5 +1,4 @@
 # FlexiFund
-# FlexiFund
 
 **Empowering Micro-Entrepreneurs Through Smart, Accessible Finance**
 
