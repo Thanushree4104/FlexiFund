@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Dashboard</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -51,6 +51,7 @@
       min-width: 20px;
       text-align: center;
       color: white;
+      font-family: "Material Icons Outlined";
       font-size: 20px;
     }
     .sidebar ul li span {
@@ -60,22 +61,29 @@
     .sidebar:hover ul li span {
       display: inline-block;
     }
-    .sidebar ul li:hover {
-      background-color: #2e3169;
+
+    /* Hover effect for submenu */
+    .sidebar .has-submenu:hover .submenu {
+      display: block; /* Show submenu when hovering the parent */
     }
+
+    /* Submenu Styles */
     .submenu {
       display: none;
       flex-direction: column;
       background-color: #2e3169;
-      padding-left: 40px;
+      padding-right: 40px;
+      margin-top: 10px; /* Make the submenu appear below the "Get a Loan" item */
+      position: absolute;
+      right: 0; /* Align submenu under the "Get a Loan" */
+      top: 60px; /* Move the submenu below "Get a Loan" */
     }
+
     .submenu li {
       padding: 10px 0;
     }
-    .sidebar:hover .has-submenu:hover .submenu,
-    .has-submenu.active .submenu {
-      display: flex;
-    }
+
+    /* Main content styles */
     .main {
       flex: 1;
       padding: 20px;
@@ -150,7 +158,7 @@
         <li><i class="material-icons-outlined">diversity_2</i><span>Create a Community</span></li>
 
         <!-- Get a Loan (with submenu) -->
-        <li class="has-submenu" onclick="toggleSubmenu(this)">
+        <li class="has-submenu">
           <i class="material-icons-outlined">currency_rupee</i><span>Get a Loan</span>
           <ul class="submenu">
             <li><i class="material-icons-outlined">person</i><span>Individual</span></li>
@@ -198,10 +206,6 @@
     function openTipsTab() {
       const range = document.getElementById('scoreRange').value;
       window.open(`tips-${range}.html`, '_blank');
-    }
-
-    function toggleSubmenu(el) {
-      el.classList.toggle("active");
     }
   </script>
 </body>
