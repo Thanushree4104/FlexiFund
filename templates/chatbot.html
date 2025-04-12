@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro Loan Education Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1e2a47; /* Dark Blue Background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            background: #ffffff; /* White background for the chat container */
+            width: 400px;
+            height: 600px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-message {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .bot, .user {
+            padding: 8px 12px;
+            border-radius: 20px;
+            color: white;
+            display: inline-block;
+            max-width: 80%;
+            word-wrap: break-word;
+            margin-left: 10px;
+            font-size: 14px;
+            position: relative;
+        }
+        .bot {
+            background: #003366; /* Dark Blue for bot messages */
+            align-self: flex-start; /* Align bot messages to the left */
+        }
+        .user {
+            background: #c1f0c1; /* Light Green for user messages */
+            align-self: flex-end; /* Align user messages to the right */
+            color: black;
+        }
+
+        .options button {
+            display: block;
+            margin: 10px 0;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            background: #003366; /* Dark Blue buttons */
+            color: white;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .options button:hover {
+            background: #002244; /* Even darker blue on hover */
+            transform: scale(1.05); /* Slight button enlargement on hover */
+        }
+        .options button:active {
+            background: #001a33; /* Darker blue on click */
+        }
+        .options button:focus {
+            outline: none; /* Remove default outline on focus */
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox"></div>
+        <div class="options" id="options"></div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chatBox");
+        const options = document.getElementById("options");
+
+        const data = {
+            "main": [
+                { text: "About Micro Loans", next: "about" },
+                { text: "Advantages of Micro Loans", next: "advantages" },
+                { text: "Difference from Traditional Loans", next: "difference" },
+                { text: "Risks & Advice", next: "risks" },
+                { text: "Exit", next: "exit" }
+            ],
+            "about": [
+                { text: "What is a Micro Loan?", reply: "A micro loan is a small loan offered to individuals without collateral." },
+                { text: "Who can apply for a Micro Loan?", reply: "Anyone with a valid need, even without formal credit history, can apply." },
+                { text: "What is the typical loan amount?", reply: "It varies from $50 to $50,000 depending on the provider." },
+                { text: "Back to Main Menu", next: "main" }
+            ],
+            "advantages": [
+                { text: "Why choose Micro Loans over other loans?", reply: "They're fast, flexible and collateral-free." },
+                { text: "How fast is the approval process?", reply: "Approval can happen in as little as 24-48 hours." },
+                { text: "Are there any hidden conditions?", reply: "Always read the terms, but many micro loans are quite transparent." },
+                { text: "Back to Main Menu", next: "main" }
+            ],
+            "difference": [
+                { text: "Do micro loans require collateral?", reply: "No, micro loans usually don't require any collateral." },
+                { text: "How do repayment terms differ?", reply: "Micro loans are short-term and often more flexible." },
+                { text: "Who provides micro loans?", reply: "NGOs, microfinance institutions, and some banks." },
+                { text: "Back to Main Menu", next: "main" }
+            ],
+            "risks": [
+                { text: "What are the risks of Micro Loans?", reply: "High interest rates and short repayment windows." },
+                { text: "How to avoid scams in Micro Loans?", reply: "Only apply through licensed lenders." },
+                { text: "What happens if I miss repayment?", reply: "You could face additional penalties and credit score impact." },
+                { text: "Back to Main Menu", next: "main" }
+            ]
+        };
+
+        function showOptions(section) {
+            options.innerHTML = "";
+            data[section].forEach(opt => {
+                const btn = document.createElement("button");
+                btn.innerText = opt.text;
+                btn.onclick = () => handleClick(opt);
+                options.appendChild(btn);
+            });
+        }
+
+        function handleClick(opt) {
+            if(opt.next === "exit") {
+                appendMessage("Thank you for using the Micro Loan Helper! Goodbye.", "bot");
+                options.innerHTML = "";
+            } else if(opt.reply) {
+                appendMessage(opt.text, "user");
+                appendMessage(opt.reply, "bot");
+            }
+            if(opt.next) showOptions(opt.next);
+        }
+
+        function appendMessage(message, sender) {
+            const msg = document.createElement("div");
+            msg.className = `chat-message ${sender}`;
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = sender;
+            messageDiv.innerText = message;
+            msg.appendChild(messageDiv);
+
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        window.onload = () => {
+            appendMessage("Welcome to Micro Loan Helper! Please choose an option:", "bot");
+            showOptions("main");
+        }
+    </script>
+</body>
+</html>
