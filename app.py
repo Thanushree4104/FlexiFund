@@ -1,55 +1,138 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for
+from flask_cors import CORS
+import sqlite3
+import hashlib
+import random
+import time
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'
+CORS(app)
+app.secret_key = 'supersecretkey'
 
-# Mock database
-users_db = {}
+DB = 'users.db'
+LOCK_DURATION = 300  # 5 minutes
+
+def init_db():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT,
+            failed_attempts INTEGER DEFAULT 0,
+            lock_time REAL DEFAULT 0
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
+    return redirect(url_for('login_page'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = ''
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = users_db.get(username)
-        if user and user['password'] == password:
-            session['username'] = username
-            return redirect(url_for('dashboard'))
-        else:
-            error = 'Invalid username or password'
-    return render_template('login.html', error=error)
-
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    error = ''
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        role = request.form['role']
-        if username in users_db:
-            error = 'Username already exists.'
+    data = request.json
+    username = data['username']
+    password = hash_password(data['password'])
+    role = data['role']
+
+    try:
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, role))
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'User registered successfully'})
+    except sqlite3.IntegrityError:
+        return jsonify({'message': 'Username already exists'}), 400
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data['username']
+    password = hash_password(data['password'])
+
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute("SELECT id, password, role, failed_attempts, lock_time FROM users WHERE username=?", (username,))
+    user = c.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({'message': 'Invalid username or password'}), 401
+
+    user_id, db_password, role, failed_attempts, lock_time = user
+
+    if lock_time and time.time() < lock_time:
+        remaining = int(lock_time - time.time())
+        conn.close()
+        return jsonify({'message': f'Account locked. Try again in {remaining} seconds'}), 403
+
+    if password != db_password:
+        failed_attempts += 1
+        if failed_attempts >= 3:
+            lock_time = time.time() + LOCK_DURATION
+            c.execute("UPDATE users SET failed_attempts=?, lock_time=? WHERE id=?", (failed_attempts, lock_time, user_id))
         else:
-            users_db[username] = {'password': password, 'role': role}
-            return redirect(url_for('login'))
-    return render_template('register.html', error=error)
+            c.execute("UPDATE users SET failed_attempts=? WHERE id=?", (failed_attempts, user_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'Incorrect password'}), 401
 
-@app.route('/dashboard')
-def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    username = session['username']
-    role = users_db[username]['role']
-    return render_template('dashboard.html', username=username, role=role)
+    c.execute("UPDATE users SET failed_attempts=0, lock_time=0 WHERE id=?", (user_id,))
+    conn.commit()
+    conn.close()
 
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
+    otp = str(random.randint(100000, 999999))
+    session['otp'] = otp
+    session['username'] = username
+    session['role'] = role
+    print(f"OTP for {username}: {otp}")  # In real apps, send via email/SMS
+
+    return jsonify({'message': 'OTP sent. Please verify.', 'redirect_to': '/otp-page'})
+
+@app.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.json
+    user_otp = data.get('otp')
+    real_otp = session.get('otp')
+    role = session.get('role')
+
+    if user_otp == real_otp:
+        if role == 'borrower':
+            return jsonify({'message': 'Welcome Borrower!', 'redirect_to': '/borrower-dashboard'})
+        elif role == 'investor':
+            return jsonify({'message': 'Welcome Investor!', 'redirect_to': '/investor-dashboard'})
+    return jsonify({'message': 'Invalid OTP'}), 401
+
+# Static pages
+
+@app.route('/register-page')
+def register_page():
+    return send_from_directory('static', 'register.html')
+
+@app.route('/login-page')
+def login_page():
+    return send_from_directory('static', 'login.html')
+
+@app.route('/otp-page')
+def otp_page():
+    return send_from_directory('static', 'verify-otp.html')
+
+@app.route('/borrower-dashboard')
+def borrower_dashboard():
+    return "<h1>Welcome to Borrower Dashboard</h1>"
+
+@app.route('/investor-dashboard')
+def investor_dashboard():
+    return "<h1>Welcome to Investor Dashboard</h1>"
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True)
