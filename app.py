@@ -31,6 +31,7 @@ def init_db():
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+
 @app.route('/')
 def home():
     return redirect(url_for('login_page'))
@@ -103,6 +104,7 @@ def verify_otp():
     user_otp = data.get('otp')
     real_otp = session.get('otp')
     role = session.get('role')
+    
 
     if user_otp == real_otp:
         if role == 'borrower':
@@ -127,11 +129,11 @@ def otp_page():
 
 @app.route('/borrower-dashboard')
 def borrower_dashboard():
-    return "<h1>Welcome to Borrower Dashboard</h1>"
+    return send_from_directory('static', 'borrower_dashboard.html')
 
 @app.route('/investor-dashboard')
 def investor_dashboard():
-    return "<h1>Welcome to Investor Dashboard</h1>"
+    return send_from_directory('static', 'investor_dashboard.html')
 
 if __name__ == '__main__':
     init_db()
