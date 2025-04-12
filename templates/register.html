@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+    <h2>Register</h2>
+    <form method="POST">
+        Username: <input type="text" name="username" required><br>
+        Password: <input type="password" name="password" required><br>
+        Role:
+        <select name="role" required>
+            <option value="Investor">Investor</option>
+            <option value="Borrower">Borrower</option>
+        </select><br>
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login here</a></p>
+    <p style="color:red">{{ error }}</p>
+</body>
+</html>
