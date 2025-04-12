@@ -50,10 +50,14 @@
       text-align: center;
     }
     .sidebar ul li span {
-      display: none;
+      display: inline-block; /* Keeps the text in one line */
+      white-space: nowrap; /* Prevents wrapping */
     }
     .sidebar:hover ul li span {
-      display: inline;
+      display: inline-block; /* Keeps the text in one line even when expanded */
+    }
+    .sidebar ul li:hover {
+      background-color: #2e3169;
     }
     .submenu {
       display: none;
