@@ -1,200 +1,201 @@
-from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for
-from flask_cors import CORS
-import sqlite3
-import hashlib
-import random
-import time
-import os
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Investor Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+    }
 
-app = Flask(__name__)
-CORS(app)
-app.secret_key = 'supersecretkey'
+    .header {
+      background-color: #1c1f4c;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+    }
 
-DB = 'users.db'
-LOCK_DURATION = 300  # 5 minutes
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-def init_db():
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT,
-            role TEXT,
-            failed_attempts INTEGER DEFAULT 0,
-            lock_time REAL DEFAULT 0
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    .logo {
+      width: 30px;
+      height: 30px;
+    }
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+    .logo-text {
+      color: gold;
+      font-size: 22px;
+      font-weight: 600;
+    }
 
-@app.route('/')
-def home():
-    return redirect(url_for('login_page'))
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      flex: 1;
+    }
 
-@app.route('/register', methods=['POST'])
-def register():
-    data = request.json
-    username = data['username']
-    password = hash_password(data['password'])
-    role = data['role']
+    .container {
+      display: flex;
+    }
 
-    try:
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, role))
-        conn.commit()
-        conn.close()
-        return jsonify({'message': 'User registered successfully'})
-    except sqlite3.IntegrityError:
-        return jsonify({'message': 'Username already exists'}), 400
+    .sidebar {
+      width: 60px;
+      background-color: #1c1f4c;
+      transition: width 0.3s;
+      overflow: hidden;
+      color: white;
+      height: 100vh;
+      position: relative;
+    }
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data['username']
-    password = hash_password(data['password'])
+    .sidebar:hover {
+      width: 220px;
+    }
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("SELECT id, password, role, failed_attempts, lock_time FROM users WHERE username=?", (username,))
-    user = c.fetchone()
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-    if not user:
-        conn.close()
-        return jsonify({'message': 'Invalid username or password'}), 401
+    .sidebar ul li {
+      padding: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      height: 60px;
+    }
 
-    user_id, db_password, role, failed_attempts, lock_time = user
+    .sidebar ul li:hover {
+      background-color: #2e3169;
+      width: 100%;
+    }
 
-    if lock_time and time.time() < lock_time:
-        remaining = int(lock_time - time.time())
-        conn.close()
-        return jsonify({'message': f'Account locked. Try again in {remaining} seconds'}), 403
+    .sidebar ul li i {
+      min-width: 20px;
+      text-align: center;
+      font-family: "Material Icons Outlined";
+      font-size: 20px;
+    }
 
-    if password != db_password:
-        failed_attempts += 1
-        if failed_attempts >= 3:
-            lock_time = time.time() + LOCK_DURATION
-            c.execute("UPDATE users SET failed_attempts=?, lock_time=? WHERE id=?", (failed_attempts, lock_time, user_id))
-        else:
-            c.execute("UPDATE users SET failed_attempts=? WHERE id=?", (failed_attempts, user_id))
-        conn.commit()
-        conn.close()
-        return jsonify({'message': 'Incorrect password'}), 401
+    .sidebar ul li span {
+      display: none;
+    }
 
-    c.execute("UPDATE users SET failed_attempts=0, lock_time=0 WHERE id=?", (user_id,))
-    conn.commit()
-    conn.close()
+    .sidebar:hover ul li span {
+      display: inline-block;
+    }
 
-    otp = str(random.randint(100000, 999999))
-    session['otp'] = otp
-    session['username'] = username
-    session['role'] = role
-    print(f"OTP for {username}: {otp}")  # In real apps, send via email/SMS
+    .main {
+      flex: 1;
+      padding: 40px;
+    }
 
-    return jsonify({'message': 'OTP sent. Please verify.', 'redirect_to': '/otp-page'})
+    .investor-type {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      max-width: 700px;
+      margin: auto;
+    }
 
-@app.route('/verify-otp', methods=['POST'])
-def verify_otp():
-    data = request.json
-    user_otp = data.get('otp')
-    real_otp = session.get('otp')
-    role = session.get('role')
+    .investor-box {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.07);
+      padding: 30px;
+      text-align: left;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+    }
 
-    if user_otp == real_otp:
-        if role == 'borrower':
-            return jsonify({'message': 'Welcome Borrower!', 'redirect_to': '/borrower-dashboard'})
-        elif role == 'investor':
-            return jsonify({'message': 'Welcome Investor!', 'redirect_to': '/investor-dashboard'})
-    return jsonify({'message': 'Invalid OTP'}), 401
+    .investor-box:hover {
+      transform: translateY(-4px);
+      border-color: #1c1f4c;
+      background-color: #f8f9fc;
+    }
 
-# Static pages
-@app.route('/register-page')
-def register_page():
-    return send_from_directory('static', 'register.html')
+    .investor-box h3 {
+      margin: 0;
+      font-size: 22px;
+      color: #1c1f4c;
+    }
 
-@app.route('/login-page')
-def login_page():
-    return send_from_directory('static', 'login.html')
+    .investor-box p {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #555;
+    }
 
-@app.route('/otp-page')
-def otp_page():
-    return send_from_directory('static', 'verify-otp.html')
+    .investor-box::after {
+      content: '→';
+      font-size: 22px;
+      color: #1c1f4c;
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.7;
+      transition: transform 0.3s;
+    }
 
-@app.route('/borrower-dashboard')
-def borrower_dashboard():
-    return send_from_directory('static', 'borrower_dashboard.html')
+    .investor-box:hover::after {
+      transform: translateY(-50%) translateX(5px);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" class="logo" />
+      <span class="logo-text">FLEXI FUND</span>
+    </div>
+    <div class="title">INVESTOR DASHBOARD</div>
+    <div style="width: 100px;"></div>
+  </div>
 
-@app.route('/investor-dashboard')
-def investor_dashboard():
-    return send_from_directory('static', 'investor_dashboard.html')
+  <div class="container">
+    <div class="sidebar">
+      <ul>
+        <li><i class="material-icons-outlined">account_circle</i><span>Investor Info</span></li>
+        <li><i class="material-icons-outlined">analytics</i><span>Portfolio</span></li>
+        <li><i class="material-icons-outlined">bar_chart</i><span>Performance</span></li>
+        <li><i class="material-icons-outlined">auto_graph</i><span>Opportunities</span></li>
+      </ul>
+    </div>
 
-# Page for impact investor
-@app.route('/itsainvest')
-def itsainvest_page():
-    if os.path.exists('itsainvest.html'):
-        return send_from_directory('static', 'static/itsainvest.html')
-    else:
-        print("itsainvest.html not found.")
-        return jsonify({"error": "Page not found"}), 404
+    <div class="main">
+      <div class="investor-type">
+        <div class="investor-box" onclick="window.location.href='/matchmaking'">
+          <h3>Impact Investor</h3>
+          <p>Invest with purpose. Support socially driven borrowers and help drive change at the grassroots level.</p>
+        </div>
 
-# Page for individual commercial investment
-@app.route('/individual_investment_page')
-def individual_investment_page():
-    if os.path.exists('static/commercial-individual.html'):
-        return send_from_directory('static', 'commercial-individual.html')
-    else:
-        print("commercial-individual.html not found.")
-        return jsonify({"error": "Page not found"}), 404
-    
-@app.route('/commercial-individual')
-def commercial_individual():
-    if os.path.exists('static/commercial-individual.html'):
-        return send_from_directory('static', 'commercial-individual.html')
-    else:
-        print("commercial-individual.html not found.")
-        return jsonify({"error": "Page not found"}), 404
-
-@app.route('/commercial-group')
-def commercial_group():
-    if os.path.exists('static/commercial-group.html'):
-        return send_from_directory('static', 'commercial-group.html')
-    else:
-        print("commercial-group.html not found.")
-        return jsonify({"error": "Page not found"}), 404
-    
-@app.route('/profile')
-def profile():
-    if os.path.exists('static/profile.html'):
-        return send_from_directory('static', 'profile.html')
-    else:
-        print("profile.html not found.")
-        return jsonify({"error": "Page not found"}), 404
-    
-@app.route('/logout')
-def logout():
-    session.clear()  # Also clears session data
-    if os.path.exists('static/login.html'):
-        return send_from_directory('static', 'login.html')
-    else:
-        print("login not found.")
-        return jsonify({"error": "Page not found"}), 404
-
-    
-@app.route('/back_dashboard')
-def back_dashboard():
-    if os.path.exists('static/investor_dashboard.html'):
-        return send_from_directory('static', 'investor_dashboard.html')
-    else:
-        print("investor_dashboard not found.")
-        return jsonify({"error": "Page not found"}), 404
-  
-        
-
-if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+        <div class="investor-box" onclick="alert('Commercial Investor functionality coming soon!')">
+          <h3>Commercial Investor</h3>
+          <p>Focus on data-driven financial returns. Explore curated microfinance opportunities to maximize your ROI.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

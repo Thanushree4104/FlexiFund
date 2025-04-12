@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto max-w-6xl px-4 py-8">
+  <header class="mb-8">
+    <div class="flex items-center gap-2 mb-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 8v4"></path>
+        <path d="M12 16h.01"></path>
+      </svg>
+      <h1 class="text-3xl font-bold">DreamBuilder Matchmaking</h1>
+    </div>
+    <p class="text-gray-600 max-w-3xl">
+      Connect with like-minded entrepreneurs, investors, and mentors who share your vision and values. 
+      Our AI-powered matchmaking finds the perfect partners for your journey.
+    </p>
+  </header>
+
+  <div class="space-y-8">
+    <div class="p-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white mb-8">
+      <div class="flex items-start gap-4">
+        <div class="p-3 bg-white/10 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="12" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <path d="M6 15v-3"></path>
+            <path d="M18 15v-3"></path>
+            <path d="M12 9v-3"></path>
+            <path d="M12 12h6"></path>
+            <path d="M6 12h0"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold mb-2">AI-Powered Vision Matching</h2>
+          <p>
+            Our advanced matching algorithm analyzes values, goals, and business missions to connect you with 
+            people who truly understand and believe in your vision. Share what matters to you 
+            and find your perfect match.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <form action="{{ url_for('find_matches_route') }}" method="POST" class="space-y-6 bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-2xl font-bold mb-4">Find Your Match</h2>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Who are you looking for?</label>
+          <select name="role" class="w-full p-2 border rounded-md" required>
+            <option value="">Select role</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="investor">Investor</option>
+            <option value="mentor">Mentor</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Important Values (select up to 3)</label>
+          <select name="values" multiple class="w-full p-2 border rounded-md" size="5">
+            {% for value in all_values %}
+              <option value="{{ value }}">{{ value }}</option>
+            {% endfor %}
+          </select>
+          <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Industry Focus (select up to 3)</label>
+          <select name="industry" multiple class="w-full p-2 border rounded-md" size="5">
+            {% for industry in all_industries %}
+              <option value="{{ industry }}">{{ industry }}</option>
+            {% endfor %}
+          </select>
+          <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Skills/Expertise (select up to 3)</label>
+          <select name="skills" multiple class="w-full p-2 border rounded-md" size="5">
+            {% for skill in all_skills %}
+              <option value="{{ skill }}">{{ skill }}</option>
+            {% endfor %}
+          </select>
+          <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Goals/Interests (select up to 3)</label>
+          <select name="goals" multiple class="w-full p-2 border rounded-md" size="5">
+            {% for goal in all_goals %}
+              <option value="{{ goal }}">{{ goal }}</option>
+            {% endfor %}
+          </select>
+          <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Experience Range (years)</label>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-gray-600">Minimum</label>
+              <input type="number" name="experience_min" min="0" max="30" value="0" class="w-full p-2 border rounded-md">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600">Maximum</label>
+              <input type="number" name="experience_max" min="0" max="30" value="30" class="w-full p-2 border rounded-md">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4">
+        <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md transition-colors">
+          Find Matches
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

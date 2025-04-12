@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Impact Investor Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+    }
+
+    .header {
+      background-color: #264653;
+      color: white;
+      padding: 20px 30px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+      width: 80%;
+      max-width: 800px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #2a9d8f;
+    }
+
+    .matchmaking-button {
+      background-color: #2a9d8f;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .matchmaking-button:hover {
+      background-color: #21867a;
+    }
+
+    .impact-metrics ul {
+      padding-left: 20px;
+    }
+
+    .impact-metrics ul li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">Impact Investor Dashboard</div>
+  <div class="main">
+
+    <div class="card">
+      <h3>Discover Borrowers</h3>
+      <p>Use our intelligent matchmaking to connect with borrowers making a difference in their communities.</p>
+      <button class="matchmaking-button" onclick="location.href='/matchmaking'">Find Borrowers</button>
+    </div>
+
+    <div class="card impact-metrics">
+      <h3>Impact Metrics</h3>
+      <ul>
+        <li>✅ 480 Jobs Created</li>
+        <li>🌱 120 Women-Led Ventures Funded</li>
+        <li>📈 85% repayment success among impact borrowers</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Community Spotlight</h3>
+      <p>Read stories from entrepreneurs transforming lives with your support.</p>
+      <button class="matchmaking-button">View Stories</button>
+    </div>
+
+  </div>
+</body>
+</html>
