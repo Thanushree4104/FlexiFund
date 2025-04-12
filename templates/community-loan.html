@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Community Loan - Self Help Group</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        label, input {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .member-group {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px dashed #aaa;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3498db;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Community Loan Application</h1>
+
+    <form id="communityLoanForm">
+        <div id="membersContainer">
+            <!-- Member fields will be added here -->
+        </div>
+
+        <button type="button" onclick="addMember()">+ Add Member</button>
+        <button type="submit">Calculate Eligibility</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        let memberCount = 0;
+
+        function addMember() {
+            memberCount++;
+            const container = document.getElementById('membersContainer');
+            const div = document.createElement('div');
+            div.className = 'member-group';
+            div.innerHTML = `
+                <label>Member ${memberCount} Name:
+                    <input type="text" name="memberName${memberCount}" required>
+                </label>
+                <label>Credit Score:
+                    <input type="number" name="creditScore${memberCount}" min="300" max="900" required>
+                </label>
+            `;
+            container.appendChild(div);
+        }
+
+        // Add 3 members by default
+        for (let i = 0; i < 3; i++) addMember();
+
+        document.getElementById('communityLoanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const scores = Array.from(document.querySelectorAll('[name^="creditScore"]'))
+                .map(input => parseInt(input.value))
+                .filter(score => !isNaN(score));
+
+            const average = scores.reduce((sum, val) => sum + val, 0) / scores.length;
+            const result = document.getElementById('result');
+
+            let message = `<strong>Average Credit Score:</strong> ${average.toFixed(2)}<br>`;
+
+            if (average >= 700) {
+                message += "<span style='color: green;'>✅ Eligible for Community Loan</span>";
+            } else if (average >= 600) {
+                message += "<span style='color: orange;'>⚠️ Possibly Eligible (Further Review Needed)</span>";
+            } else {
+                message += "<span style='color: red;'>❌ Not Eligible</span>";
+            }
+
+            result.innerHTML = message;
+        });
+    </script>
+
+</body>
+</html>
