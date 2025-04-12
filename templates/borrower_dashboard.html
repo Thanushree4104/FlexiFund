@@ -1,12 +1,11 @@
-BORROWER DASHBOARD (12-04-2025: 12:27 AM)
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>User Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
   <style>
     body {
       margin: 0;
@@ -14,9 +13,48 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
       background-color: #f4f6f9;
       color: #333;
     }
+
+    .header {
+      background-color: #1c1f4c;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 30px;
+      height: 30px;
+    }
+
+    .logo-text {
+      color: gold;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      flex: 1;
+    }
+
     .container {
       display: flex;
+      flex-wrap: wrap;
     }
+
     .sidebar {
       width: 60px;
       background-color: #1c1f4c;
@@ -26,14 +64,17 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
       height: 100vh;
       position: relative;
     }
+
     .sidebar:hover {
       width: 220px;
     }
+
     .sidebar ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
+
     .sidebar ul li {
       padding: 20px;
       cursor: pointer;
@@ -44,67 +85,83 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
       gap: 10px;
       position: relative;
       height: 60px;
+      text-align: right;
     }
+
     .sidebar ul li:hover {
       background-color: #2e3169;
-      width: 100%; /* Full width on hover */
+      width: 100%;
     }
+
     .sidebar ul li i {
       min-width: 20px;
       text-align: center;
-      color: white; /* Set icons to white */
-      font-family: "Material Icons Outlined"; /* Set Material icons font-family */
-      font-size: 20px; /* Set a size for the icons */
+      color: white;
+      font-family: "Material Icons Outlined";
+      font-size: 20px;
     }
+
     .sidebar ul li span {
-      display: none; /* Hide text by default */
+      display: none;
       white-space: nowrap;
     }
+
     .sidebar:hover ul li span {
-      display: inline-block; /* Show text when hovered */
+      display: inline-block;
     }
+
     .submenu {
       display: none;
       flex-direction: column;
       background-color: #2e3169;
-      padding-right: 40px; /* Right padding for submenu */
-      width: 70%; /* Full width for submenu */
+      padding-right: 40px;
+      padding-left: 20px;
+      width: 100%;
       position: absolute;
-      top: 90%; /* Position the submenu below the parent item */
-      left: 20;
+      top: 100%;
+      left: 0;
     }
+
     .submenu li {
       padding: 10px 0;
-      margin-top: 10px; /* Adds space below the "Get a Loan" hover box */
+      margin-top: 10px;
+      text-align: left;
     }
+
     .sidebar:hover .has-submenu:hover .submenu,
     .has-submenu.active .submenu {
       display: flex;
     }
+
     .main {
       flex: 1;
       padding: 20px;
+      display: flex;
+      gap: 20px; /* Space between boxes */
+      flex-wrap: wrap; /* Ensure wrapping if the window size is smaller */
     }
+
     .user-info {
       display: flex;
-      flex-direction: column;
-      gap: 20px;
+      gap: 20px; /* Space between the boxes */
       background: white;
-      padding: 20px;
+      padding: 15px; /* Reduced padding */
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
       margin-bottom: 20px;
-      max-width: 400px;
+      max-width: 80%; /* Reduced width */
     }
+
     .user-details {
       background: #fff;
-      padding: 15px 20px;
+      padding: 10px 15px; /* Reduced padding */
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
+
     .credit-score-box {
-      width: 200px;
-      height: 200px;
+      width: 180px; /* Reduced width */
+      height: 180px; /* Reduced height */
       border-radius: 10px;
       background: #fff;
       display: flex;
@@ -115,9 +172,11 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
       cursor: pointer;
       position: relative;
     }
+
     .credit-score-box:hover .expanded-score {
       display: block;
     }
+
     .expanded-score {
       position: absolute;
       top: 210px;
@@ -129,32 +188,107 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
       width: 250px;
       display: none;
     }
+
     .tips-section {
       background: white;
-      padding: 20px;
+      padding: 15px; /* Reduced padding */
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      max-width: 400px;
+      max-width: 350px; /* Reduced width */
+      margin-left: 20px; /* Optional, for spacing between boxes */
     }
-    .tips-section select, .tips-section button {
+
+    .tips-section select,
+    .tips-section button {
       padding: 10px;
       margin-top: 10px;
       font-size: 16px;
       margin-right: 10px;
     }
+
+    .loan-simulator {
+      width: 100%;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .loan-simulator input,
+    .loan-simulator select,
+    .loan-simulator button {
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .group-animation {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .group-animation .loading {
+      display: block;
+      margin: 20px auto;
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .your-loans {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .loan-status {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .loan-status.completed {
+      color: green;
+    }
+
+    .loan-status.pending {
+      color: red;
+    }
   </style>
 </head>
 <body>
+  <div class="header">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" class="logo" />
+      <span class="logo-text">FLEXI FUND</span>
+    </div>
+    <div class="title">USER DASHBOARD</div>
+    <div style="width: 100px;"></div> <!-- Just to balance flex space -->
+  </div>
+
   <div class="container">
     <div class="sidebar">
       <ul>
-        <!-- User Details -->
         <li><i class="material-icons-outlined">account_circle</i><span>User Details</span></li>
-
-        <!-- Create a Community -->
         <li><i class="material-icons-outlined">diversity_2</i><span>Create a Community</span></li>
-
-        <!-- Get a Loan (with submenu) -->
         <li class="has-submenu" onclick="toggleSubmenu(this)">
           <i class="material-icons-outlined">currency_rupee</i><span>Get a Loan</span>
           <ul class="submenu">
@@ -164,6 +298,7 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
         </li>
       </ul>
     </div>
+
     <div class="main">
       <div class="user-info">
         <div class="user-details">
@@ -171,6 +306,7 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
           <p><strong>Username:</strong> johnd123</p>
           <p><strong>Date:</strong> April 12, 2025</p>
         </div>
+
         <div class="credit-score-box">
           <h3>Credit Score</h3>
           <div style="font-size: 32px; font-weight: bold; color: #6a0dad">740 / 900</div>
@@ -196,6 +332,40 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
         </select>
         <button onclick="openTipsTab()">Search</button>
       </div>
+
+      <!-- Loan Simulator -->
+      <div class="loan-simulator">
+        <h3>Loan Simulator</h3>
+        <input type="number" id="loanAmount" placeholder="Loan Amount" />
+        <select id="paymentFreq">
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="annually">Annually</option>
+        </select>
+        <input type="number" id="interestRate" placeholder="Interest Rate (%)" />
+        <input type="number" id="loanTerm" placeholder="Loan Term (Years)" />
+        <button onclick="calculateLoan()">Calculate</button>
+      </div>
+
+      <!-- Groups for Loans -->
+      <div class="group-animation">
+        <h3>Loan Groups</h3>
+        <div class="loading"></div>
+        <p>Loading your loan groups...</p>
+      </div>
+
+      <!-- Your Loans -->
+      <div class="your-loans">
+        <h3>Your Loans</h3>
+        <div class="loan-status completed">
+          <span>Group A / Individual</span>
+          <span>2025-04-10, 12:30 PM - Closed</span>
+        </div>
+        <div class="loan-status pending">
+          <span>Group B / Individual</span>
+          <span>2025-05-15, 10:00 AM - Pending</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -205,8 +375,26 @@ BORROWER DASHBOARD (12-04-2025: 12:27 AM)
       window.open(`tips-${range}.html`, '_blank');
     }
 
-    function toggleSubmenu(el) {
-      el.classList.toggle("active");
+    function calculateLoan() {
+      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+      const paymentFreq = document.getElementById('paymentFreq').value;
+      const interestRate = parseFloat(document.getElementById('interestRate').value);
+      const loanTerm = parseInt(document.getElementById('loanTerm').value);
+
+      if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(loanTerm)) {
+        alert('Please enter all fields correctly!');
+        return;
+      }
+
+      const totalPayment = loanAmount * (1 + (interestRate / 100) * loanTerm);
+      const monthlyPayment = totalPayment / (loanTerm * 12);
+      
+      alert(`Loan Details:\nTotal Payment: $${totalPayment.toFixed(2)}\nMonthly Payment: $${monthlyPayment.toFixed(2)}`);
+    }
+
+    function toggleSubmenu(element) {
+      const submenu = element.querySelector('.submenu');
+      submenu.classList.toggle('active');
     }
   </script>
 </body>
