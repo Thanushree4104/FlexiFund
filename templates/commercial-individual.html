@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invest Individually</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    .investment-options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .investment-option {
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .investment-option:hover {
+      background-color: #f1f1f1;
+    }
+    .back-button {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #007bff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Individual Investment Options</h2>
+    <p>Select a business to invest in individually:</p>
+    
+    <div class="investment-options">
+      <div class="investment-option">🌐 Tech Innovations - Cutting-edge tech company</div>
+      <div class="investment-option">🏢 Urban Real Estate - High-demand urban properties</div>
+      <div class="investment-option">🚗 Auto Ventures - Innovative vehicle manufacturers</div>
+    </div>
+
+    <div class="back-button" onclick="window.history.back();">Back to Commercial Options</div>
+  </div>
+</body>
+</html>
