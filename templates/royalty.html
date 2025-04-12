@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Royalty-Based Repayment (Frontend Demo)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: auto;
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .log {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      padding: 10px;
+      max-height: 200px;
+      overflow-y: scroll;
+    }
+
+    .log p {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Royalty-Based Loan Repayment</h2>
+
+    <p><strong>Loan Amount:</strong> ₹10,000</p>
+    <p><strong>Repayment Cap (1.5x):</strong> ₹15,000</p>
+    <p><strong>Threshold Profit:</strong> ₹1,000</p>
+    <p><strong>Royalty Percentage:</strong> 10%</p>
+
+    <label>Enter Credited Income:</label>
+    <input type="number" id="incomeInput" placeholder="E.g. 2000">
+    <button onclick="simulateIncome()">Simulate Income</button>
+
+    <h3>Status</h3>
+    <p>Borrower Balance: ₹<span id="borrowerBalance">0</span></p>
+    <p>Investor Received: ₹<span id="investorBalance">0</span></p>
+    <p>Loan Remaining: ₹<span id="loanRemaining">15000</span></p>
+
+    <div class="log" id="logBox">
+      <strong>Transaction Log:</strong>
+    </div>
+  </div>
+
+  <script>
+    const THRESHOLD = 1000;
+    const ROYALTY_PERCENT = 10;
+    const LOAN_AMOUNT = 10000;
+    const REPAYMENT_CAP = 15000;
+
+    let borrowerBalance = 0;
+    let investorBalance = 0;
+    let repaidAmount = 0;
+
+    function simulateIncome() {
+      const income = parseFloat(document.getElementById("incomeInput").value);
+      if (isNaN(income) || income <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      let royalty = 0;
+      if (income > THRESHOLD && repaidAmount < REPAYMENT_CAP) {
+        let taxable = income - THRESHOLD;
+        royalty = (ROYALTY_PERCENT / 100) * taxable;
+
+        if (repaidAmount + royalty > REPAYMENT_CAP) {
+          royalty = REPAYMENT_CAP - repaidAmount;
+        }
+
+        repaidAmount += royalty;
+        investorBalance += royalty;
+        borrowerBalance += income - royalty;
+
+        logTransaction(income, royalty, true);
+      } else {
+        borrowerBalance += income;
+        logTransaction(income, 0, false);
+      }
+
+      updateDisplay();
+      document.getElementById("incomeInput").value = "";
+    }
+
+    function updateDisplay() {
+      document.getElementById("borrowerBalance").innerText = borrowerBalance.toFixed(2);
+      document.getElementById("investorBalance").innerText = investorBalance.toFixed(2);
+      document.getElementById("loanRemaining").innerText = (REPAYMENT_CAP - repaidAmount).toFixed(2);
+    }
+
+    function logTransaction(income, royalty, paidRoyalty) {
+      const logBox = document.getElementById("logBox");
+      const msg = `<p>
+        Credited: ₹${income.toFixed(2)} <br>
+        ${paidRoyalty 
+          ? `Royalty Paid: -₹${royalty.toFixed(2)} to Investor` 
+          : "No Royalty Paid"} <br>
+        New Borrower Balance: ₹${borrowerBalance.toFixed(2)}
+        <hr></p>`;
+      logBox.innerHTML = msg + logBox.innerHTML;
+    }
+  </script>
+</body>
+</html>
