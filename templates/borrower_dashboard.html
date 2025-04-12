@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Dashboard</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanwZ8bX/GrN1Ebb4ER1Uy58JfHCz9XYsA7L9Qb6c9HGzO5mN8fbs3g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     body {
       margin: 0;
@@ -39,8 +39,10 @@
       transition: background 0.2s;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       position: relative;
+      height: 60px;
     }
     .sidebar ul li:hover {
       background-color: #2e3169;
@@ -48,13 +50,15 @@
     .sidebar ul li i {
       min-width: 20px;
       text-align: center;
+      color: white;
+      font-size: 20px;
     }
     .sidebar ul li span {
-      display: inline-block; /* Keeps the text in one line */
-      white-space: nowrap; /* Prevents wrapping */
+      display: none;
+      white-space: nowrap;
     }
     .sidebar:hover ul li span {
-      display: inline-block; /* Keeps the text in one line even when expanded */
+      display: inline-block;
     }
     .sidebar ul li:hover {
       background-color: #2e3169;
@@ -139,13 +143,18 @@
   <div class="container">
     <div class="sidebar">
       <ul>
-        <li><i class="fas fa-user"></i><span>User Details</span></li>
-        <li><i class="fas fa-users"></i><span>Create a Community</span></li>
+        <!-- User Details -->
+        <li><i class="material-icons-outlined">account_circle</i><span>User Details</span></li>
+
+        <!-- Create a Community -->
+        <li><i class="material-icons-outlined">diversity_2</i><span>Create a Community</span></li>
+
+        <!-- Get a Loan (with submenu) -->
         <li class="has-submenu" onclick="toggleSubmenu(this)">
-          <i class="fas fa-hand-holding-usd"></i><span>Get a Loan</span>
+          <i class="material-icons-outlined">currency_rupee</i><span>Get a Loan</span>
           <ul class="submenu">
-            <li><i class="fas fa-user"></i><span>Individual</span></li>
-            <li><i class="fas fa-users"></i><span>Join a Group</span></li>
+            <li><i class="material-icons-outlined">person</i><span>Individual</span></li>
+            <li><i class="material-icons-outlined">groups</i><span>Join a Group</span></li>
           </ul>
         </li>
       </ul>
