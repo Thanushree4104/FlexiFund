@@ -206,8 +206,11 @@
       margin-right: 10px;
     }
 
-    .loan-simulator {
-      width: 100%;
+    .loan-simulator,
+    .group-animation,
+    .your-loans {
+      flex: 1; /* Allow them to grow to take available space */
+      min-width: 300px; /* Minimum width to ensure they don't get too small */
       background: white;
       padding: 15px;
       border-radius: 10px;
@@ -224,16 +227,6 @@
       font-size: 16px;
     }
 
-    .group-animation {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      margin-top: 20px;
-      text-align: center;
-      position: relative;
-    }
-
     .group-animation .loading {
       display: block;
       margin: 20px auto;
@@ -248,15 +241,6 @@
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
-    }
-
-    .your-loans {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      margin-top: 20px;
-      width: 100%;
     }
 
     .loan-status {
@@ -323,78 +307,49 @@
       </div>
 
       <div class="tips-section">
-        <h3>Tips to Increase Your Credit Score</h3>
-        <select id="scoreRange">
-          <option value="0-600">0-600</option>
-          <option value="601-700">601-700</option>
-          <option value="701-800">701-800</option>
-          <option value="801-900">801-900</option>
+        <h3>Personalized Loan Tips</h3>
+        <select>
+          <option>Choose loan type</option>
+          <option>Car Loan</option>
+          <option>Home Loan</option>
+          <option>Personal Loan</option>
         </select>
-        <button onclick="openTipsTab()">Search</button>
+        <button>Get Tips</button>
       </div>
 
-      <!-- Loan Simulator -->
       <div class="loan-simulator">
         <h3>Loan Simulator</h3>
-        <input type="number" id="loanAmount" placeholder="Loan Amount" />
-        <select id="paymentFreq">
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="annually">Annually</option>
+        <input type="number" placeholder="Enter amount" />
+        <input type="number" placeholder="Enter interest rate" />
+        <select>
+          <option>Loan Term</option>
+          <option>1 Year</option>
+          <option>2 Years</option>
+          <option>3 Years</option>
         </select>
-        <input type="number" id="interestRate" placeholder="Interest Rate (%)" />
-        <input type="number" id="loanTerm" placeholder="Loan Term (Years)" />
-        <button onclick="calculateLoan()">Calculate</button>
+        <button>Calculate</button>
       </div>
 
-      <!-- Groups for Loans -->
-      <div class="group-animation">
-        <h3>Loan Groups</h3>
-        <div class="loading"></div>
-        <p>Loading your loan groups...</p>
-      </div>
-
-      <!-- Your Loans -->
       <div class="your-loans">
         <h3>Your Loans</h3>
         <div class="loan-status completed">
-          <span>Group A / Individual</span>
-          <span>2025-04-10, 12:30 PM - Closed</span>
+          <span>Loan 1</span><span>Completed</span>
         </div>
         <div class="loan-status pending">
-          <span>Group B / Individual</span>
-          <span>2025-05-15, 10:00 AM - Pending</span>
+          <span>Loan 2</span><span>Pending</span>
         </div>
+      </div>
+
+      <div class="group-animation">
+        <h3>Loan Groups</h3>
+        <div class="loading"></div>
       </div>
     </div>
   </div>
 
   <script>
-    function openTipsTab() {
-      const range = document.getElementById('scoreRange').value;
-      window.open(`tips-${range}.html`, '_blank');
-    }
-
-    function calculateLoan() {
-      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
-      const paymentFreq = document.getElementById('paymentFreq').value;
-      const interestRate = parseFloat(document.getElementById('interestRate').value);
-      const loanTerm = parseInt(document.getElementById('loanTerm').value);
-
-      if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(loanTerm)) {
-        alert('Please enter all fields correctly!');
-        return;
-      }
-
-      const totalPayment = loanAmount * (1 + (interestRate / 100) * loanTerm);
-      const monthlyPayment = totalPayment / (loanTerm * 12);
-      
-      alert(`Loan Details:\nTotal Payment: $${totalPayment.toFixed(2)}\nMonthly Payment: $${monthlyPayment.toFixed(2)}`);
-    }
-
-    function toggleSubmenu(element) {
-      const submenu = element.querySelector('.submenu');
-      submenu.classList.toggle('active');
+    function toggleSubmenu(menuItem) {
+      menuItem.classList.toggle('active');
     }
   </script>
 </body>
