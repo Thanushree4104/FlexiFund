@@ -4,6 +4,7 @@ import sqlite3
 import hashlib
 import random
 import time
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +31,6 @@ def init_db():
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
 
 @app.route('/')
 def home():
@@ -104,7 +104,6 @@ def verify_otp():
     user_otp = data.get('otp')
     real_otp = session.get('otp')
     role = session.get('role')
-    
 
     if user_otp == real_otp:
         if role == 'borrower':
@@ -114,7 +113,6 @@ def verify_otp():
     return jsonify({'message': 'Invalid OTP'}), 401
 
 # Static pages
-
 @app.route('/register-page')
 def register_page():
     return send_from_directory('static', 'register.html')
@@ -134,6 +132,40 @@ def borrower_dashboard():
 @app.route('/investor-dashboard')
 def investor_dashboard():
     return send_from_directory('static', 'investor_dashboard.html')
+
+# Page for impact investor
+@app.route('/itsainvest')
+def itsainvest_page():
+    if os.path.exists('itsainvest.html'):
+        return send_from_directory('static', 'static/itsainvest.html')
+    else:
+        print("itsainvest.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+
+# Page for individual commercial investment
+@app.route('/individual_investment_page')
+def individual_investment_page():
+    if os.path.exists('static/commercial-individual.html'):
+        return send_from_directory('static', 'commercial-individual.html')
+    else:
+        print("commercial-individual.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/commercial-individual')
+def commercial_individual():
+    if os.path.exists('static/commercial-individual.html'):
+        return send_from_directory('static', 'commercial-individual.html')
+    else:
+        print("commercial-individual.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+
+@app.route('/commercial-group')
+def commercial_group():
+    if os.path.exists('static/commercial-group.html'):
+        return send_from_directory('static', 'commercial-group.html')
+    else:
+        print("commercial-group.html not found.")
+        return jsonify({"error": "Page not found"}), 404
 
 if __name__ == '__main__':
     init_db()
