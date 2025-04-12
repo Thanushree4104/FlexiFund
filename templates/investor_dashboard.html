@@ -1,200 +1,200 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Investor Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for
+from flask_cors import CORS
+import sqlite3
+import hashlib
+import random
+import time
+import os
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f5f5f7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+app = Flask(__name__)
+CORS(app)
+app.secret_key = 'supersecretkey'
 
-    .container {
-      width: 80%;
-      max-width: 800px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      padding: 40px;
-      text-align: center;
-      color: #333;
-    }
+DB = 'users.db'
+LOCK_DURATION = 300  # 5 minutes
 
-    h1 {
-      font-size: 2.4rem;
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
+def init_db():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT,
+            failed_attempts INTEGER DEFAULT 0,
+            lock_time REAL DEFAULT 0
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      color: #7f8c8d;
-    }
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-    .button {
-      background-color: #2980b9;
-      color: white;
-      padding: 15px 30px;
-      font-size: 1.1rem;
-      font-weight: 500;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 250px;
-      margin: 10px 0;
-      transition: all 0.3s ease-in-out;
-    }
+@app.route('/')
+def home():
+    return redirect(url_for('login_page'))
 
-    .button:hover {
-      background-color: #1f618d;
-      transform: translateY(-3px);
-    }
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data['username']
+    password = hash_password(data['password'])
+    role = data['role']
 
-    .button:active {
-      transform: translateY(1px);
-    }
+    try:
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, role))
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'User registered successfully'})
+    except sqlite3.IntegrityError:
+        return jsonify({'message': 'Username already exists'}), 400
 
-    .options {
-      display: none;
-      margin-top: 40px;
-      padding: 30px;
-      background-color: #ecf0f1;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data['username']
+    password = hash_password(data['password'])
 
-    .option-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute("SELECT id, password, role, failed_attempts, lock_time FROM users WHERE username=?", (username,))
+    user = c.fetchone()
 
-    .option-buttons button {
-      background-color: #27ae60;
-      color: white;
-      padding: 15px 30px;
-      font-size: 1rem;
-      border-radius: 6px;
-      width: 180px;
-      cursor: pointer;
-      transition: background-color 0.3s ease-in-out;
-    }
+    if not user:
+        conn.close()
+        return jsonify({'message': 'Invalid username or password'}), 401
 
-    .option-buttons button:hover {
-      background-color: #1e8449;
-    }
+    user_id, db_password, role, failed_attempts, lock_time = user
 
-    .header-btns {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 40px;
-    }
+    if lock_time and time.time() < lock_time:
+        remaining = int(lock_time - time.time())
+        conn.close()
+        return jsonify({'message': f'Account locked. Try again in {remaining} seconds'}), 403
 
-    .header-btns a {
-      text-decoration: none;
-      color: #2980b9;
-      font-size: 1.1rem;
-      font-weight: 500;
-      transition: color 0.3s ease-in-out;
-    }
+    if password != db_password:
+        failed_attempts += 1
+        if failed_attempts >= 3:
+            lock_time = time.time() + LOCK_DURATION
+            c.execute("UPDATE users SET failed_attempts=?, lock_time=? WHERE id=?", (failed_attempts, lock_time, user_id))
+        else:
+            c.execute("UPDATE users SET failed_attempts=? WHERE id=?", (failed_attempts, user_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'Incorrect password'}), 401
 
-    .header-btns a:hover {
-      color: #1f618d;
-    }
+    c.execute("UPDATE users SET failed_attempts=0, lock_time=0 WHERE id=?", (user_id,))
+    conn.commit()
+    conn.close()
 
-    .footer {
-      margin-top: 40px;
-      color: #7f8c8d;
-      font-size: 0.9rem;
-    }
+    otp = str(random.randint(100000, 999999))
+    session['otp'] = otp
+    session['username'] = username
+    session['role'] = role
+    print(f"OTP for {username}: {otp}")  # In real apps, send via email/SMS
 
-    .footer a {
-      color: #2980b9;
-      text-decoration: none;
-    }
+    return jsonify({'message': 'OTP sent. Please verify.', 'redirect_to': '/otp-page'})
 
-    .footer a:hover {
-      color: #1f618d;
-    }
+@app.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.json
+    user_otp = data.get('otp')
+    real_otp = session.get('otp')
+    role = session.get('role')
 
-    /* Animation */
-    @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    if user_otp == real_otp:
+        if role == 'borrower':
+            return jsonify({'message': 'Welcome Borrower!', 'redirect_to': '/borrower-dashboard'})
+        elif role == 'investor':
+            return jsonify({'message': 'Welcome Investor!', 'redirect_to': '/investor-dashboard'})
+    return jsonify({'message': 'Invalid OTP'}), 401
 
-    .container {
-      animation: fadeIn 0.7s ease-in-out;
-    }
-  </style>
-</head>
-<body>
+# Static pages
+@app.route('/register-page')
+def register_page():
+    return send_from_directory('static', 'register.html')
 
-  <div class="container">
-    <h1>Welcome Investor</h1>
-    <p>Please choose your investment type to proceed:</p>
+@app.route('/login-page')
+def login_page():
+    return send_from_directory('static', 'login.html')
 
-    <!-- Header Buttons (Optional Links) -->
-    <div class="header-btns">
-      <button class="button" onclick="window.location.href='/profile'" style="width: auto; padding: 10px 20px; font-size: 1rem;">Profile</button>
-      <button class="button" onclick="window.location.href='/logout'" style="width: auto; padding: 10px 20px; font-size: 1rem;">Log Out</button>
+@app.route('/otp-page')
+def otp_page():
+    return send_from_directory('static', 'verify-otp.html')
 
-    </div>
+@app.route('/borrower-dashboard')
+def borrower_dashboard():
+    return send_from_directory('static', 'borrower_dashboard.html')
 
-    <button class="button" onclick="chooseInvestorType('impact')">Impact Investor</button>
-    <button class="button" onclick="chooseInvestorType('commercial')">Commercial Investor</button>
+@app.route('/investor-dashboard')
+def investor_dashboard():
+    return send_from_directory('static', 'investor_dashboard.html')
 
-    <div id="commercialOptions" class="options">
-      <h3>Commercial Investment Options:</h3>
-      <div class="option-buttons">
-        <button class="button" onclick="redirectTo('individual')">Invest Individually</button>
-        <button class="button" onclick="redirectTo('group')">Invest in Group</button>
-      </div>
-    </div>
+# Page for impact investor
+@app.route('/itsainvest')
+def itsainvest_page():
+    if os.path.exists('itsainvest.html'):
+        return send_from_directory('static', 'static/itsainvest.html')
+    else:
+        print("itsainvest.html not found.")
+        return jsonify({"error": "Page not found"}), 404
 
-    <div class="footer">
-      <p>&copy; 2025 YourCompany. <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-    </div>
-  </div>
+# Page for individual commercial investment
+@app.route('/individual_investment_page')
+def individual_investment_page():
+    if os.path.exists('static/commercial-individual.html'):
+        return send_from_directory('static', 'commercial-individual.html')
+    else:
+        print("commercial-individual.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/commercial-individual')
+def commercial_individual():
+    if os.path.exists('static/commercial-individual.html'):
+        return send_from_directory('static', 'commercial-individual.html')
+    else:
+        print("commercial-individual.html not found.")
+        return jsonify({"error": "Page not found"}), 404
 
-  <script>
-    function chooseInvestorType(type) {
-      if (type === 'impact') {
-        window.location.href = '/static/itsainvest.html'; // Impact investment page
-      } else if (type === 'commercial') {
-        document.getElementById('commercialOptions').style.display = 'block';
-      }
-    }
+@app.route('/commercial-group')
+def commercial_group():
+    if os.path.exists('static/commercial-group.html'):
+        return send_from_directory('static', 'commercial-group.html')
+    else:
+        print("commercial-group.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/profile')
+def profile():
+    if os.path.exists('static/profile.html'):
+        return send_from_directory('static', 'profile.html')
+    else:
+        print("profile.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/logout')
+def logout():
+    session.clear()  # Also clears session data
+    if os.path.exists('static/login.html'):
+        return send_from_directory('static', 'login.html')
+    else:
+        print("login not found.")
+        return jsonify({"error": "Page not found"}), 404
 
-    function redirectTo(option) {
-      if (option === 'individual') {
-        window.location.href = '/commercial-individual.html'; // Individual investment page
-      } else if (option === 'group') {
-        window.location.href = '/commercial-group.html'; // Group investment page
-      }
-    }
-  </script>
+    
+@app.route('/back_dashboard')
+def back_dashboard():
+    if os.path.exists('static/investor_dashboard.html'):
+        return send_from_directory('static', 'investor_dashboard.html')
+    else:
+        print("investor_dashboard not found.")
+        return jsonify({"error": "Page not found"}), 404
+  
+        
 
-</body>
-</html>
+if __name__ == '__main__':
+    init_db()
+    app.run(debug=True)
