@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FlexiFund - OTP Verification</title>
+</head>
+<body>
+    <h2>Verify OTP</h2>
+    <form id="otpForm">
+        <label>Enter OTP:</label>
+        <input type="text" name="otp" required><br><br>
+        <button type="submit">Verify</button>
+    </form>
+
+    <script>
+        document.getElementById("otpForm").onsubmit = async function(e) {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const data = Object.fromEntries(form.entries());
+
+            const response = await fetch("/verify-otp", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            alert(result.message);
+            if (result.redirect_to) {
+                window.location.href = result.redirect_to;
+            }
+        };
+    </script>
+</body>
+</html>
