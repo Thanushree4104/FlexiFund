@@ -339,9 +339,9 @@
     function redirectToLoanTip() {
       const loanType = document.getElementById("loanTypeSelect").value;
       if (loanType === "RILR") {
-        window.location.href = "static/royalty.html";
+        window.location.href = "/royalty";
       } else if (loanType === "Community") {
-        window.location.href = "static/community-loan.html";
+        window.location.href = "/community-loan";
       } else if (loanType === "Personal Loan") {
         alert("Personal Loan selected.");
       } else {
