@@ -4,6 +4,7 @@ import sqlite3
 import hashlib
 import random
 import time
+from datetime import datetime
 
 from algorithm import calculate_match_score, find_matches
 from sample_users import users
@@ -30,6 +31,95 @@ def init_db():
     ''')
     conn.commit()
     conn.close()
+
+def init_credit_db():
+    conn = sqlite3.connect('credit.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS credit (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            monthly_surplus REAL,
+            financial_diversity INTEGER,
+            merchant_txns INTEGER,
+            geo_stability INTEGER,
+            business_docs INTEGER,
+            score REAL,
+            last_updated TEXT,
+            FOREIGN KEY (id) REFERENCES users(id)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def get_and_calculate_credit_score(user_id):
+    # Start tracking the function execution
+    print(f"Starting credit score calculation for user_id: {user_id}")
+
+    try:
+        # Connect to the database
+        conn = sqlite3.connect('credit.db')
+        cursor = conn.cursor()
+        print("Database connection established.")
+
+        # Query to get user data and last calculated date
+        cursor.execute("SELECT monthly_surplus, financial_diversity, merchant_txns, geo_stability, business_docs, last_updated, score FROM credit WHERE id = ?", (user_id,))
+        data = cursor.fetchone()
+
+        if not data:
+            print(f"No data found for user_id: {user_id}")
+            conn.close()
+            return None  # No data found for user
+
+        # If data exists, unpack it
+        monthly_surplus, financial_diversity, merchant_txns, geo_stability, business_docs, last_calculated, current_credit_score = data
+        print(f"Data retrieved for user_id {user_id}: {data}")
+
+        # Recalculate the score every time the user logs in
+        weights = {
+            "monthly_surplus": 0.3,
+            "financial_diversity": 0.2,
+            "merchant_txns": 0.2,
+            "geo_stability": 0.15,
+            "business_docs": 0.15
+        }
+
+        # Calculate individual scores
+        monthly_surplus_score = min(monthly_surplus / 10000, 1.0) * 100
+        financial_diversity_score = financial_diversity * 20
+        merchant_txns_score = min(merchant_txns / 20, 1.0) * 100
+        geo_stability_score = min(geo_stability / 5, 1.0) * 100
+        business_docs_score = 100 if business_docs == 1 else 50
+
+        # Calculate the final score
+        final_score = (
+            monthly_surplus_score * weights["monthly_surplus"]
+            + financial_diversity_score * weights["financial_diversity"]
+            + merchant_txns_score * weights["merchant_txns"]
+            + geo_stability_score * weights["geo_stability"]
+            + business_docs_score * weights["business_docs"]
+        )
+        print(f"Calculated final score: {final_score}")
+
+        # Update the credit score and last calculated date in the database
+        today = datetime.today().date()
+        print(f"Updating score and last_updated for user_id {user_id} in the database...")
+
+        conn = sqlite3.connect('credit.db')
+        cursor = conn.cursor()
+        cursor.execute("UPDATE credit SET score = ?, last_updated = ? WHERE id = ?",
+                       (round(final_score, 2), today, user_id))
+        conn.commit()
+        print(f"Score for user_id {user_id} updated successfully.")
+
+        conn.close()
+        return round(final_score, 2)
+
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -92,6 +182,7 @@ def login():
     conn.commit()
     conn.close()
 
+    session['user_id'] = user_id
     otp = str(random.randint(100000, 999999))
     session['otp'] = otp
     session['username'] = username
@@ -106,10 +197,11 @@ def verify_otp():
     user_otp = data.get('otp')
     real_otp = session.get('otp')
     role = session.get('role')
+    user_id = session.get('user_id')
 
     if user_otp == real_otp:
         if role == 'borrower':
-            return jsonify({'message': 'Welcome Borrower!', 'redirect_to': '/borrower-dashboard'})
+            return jsonify({'message': f'Welcome Borrower! Your user ID is {user_id}', 'redirect_to': '/borrower-dashboard'})
         elif role == 'investor':
             return jsonify({'message': 'Welcome Investor!', 'redirect_to': '/investor-dashboard'})
     return jsonify({'message': 'Invalid OTP'}), 401
@@ -130,7 +222,21 @@ def otp_page():
 
 @app.route('/borrower-dashboard')
 def borrower_dashboard():
-    return render_template('borrower_dashboard.html')
+    user_id = session.get('user_id')  # Get the user_id stored in the session after login
+
+    if user_id:
+        print(f"User ID: {user_id} found in session.")  # Logging the user_id
+        credit_score = get_and_calculate_credit_score(user_id)
+        
+        if credit_score is not None:
+            print(f"Credit score calculated: {credit_score}")  # Logging the credit score
+            return render_template('borrower-dashboard.html', credit_score=credit_score)
+        else:
+            print("No credit score data available.")  # Logging when no credit score is available
+            return render_template('borrower-dashboard.html', credit_score="Data not available.")
+    else:
+        print("User not logged in.")  # Logging if the user is not logged in
+        return "User not logged in"
 
 @app.route('/investor-dashboard')
 def investor_dashboard():
@@ -147,6 +253,17 @@ def commercial_dashboard():
 @app.route('/chatbot')
 def chatbot():
     return render_template('chatbot.html')
+
+@app.route('/royalty')
+def royalty():
+    return render_template('royalty.html')
+
+@app.route('/community-loan')
+def community_loan():
+    return render_template("community-loan.html")
+
+
+
 
 @app.route('/matchmaking', methods=['GET'])
 def matchmaking():
@@ -221,4 +338,5 @@ def match_results():
 
 if __name__ == '__main__':
     init_db()
+    init_credit_db()
     app.run(debug=True)
