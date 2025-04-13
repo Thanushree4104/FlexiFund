@@ -13,7 +13,7 @@ FlexiFund is a digital microfinance web application tailored to support small bu
   Provides quick, low-barrier microloans with repayment schedules aligned to the borrower’s income cycles—helping ensure sustainable growth without cash flow stress.
 
 - **Flexible Repayment Options**  
-  Customizable repayment plans designed to accommodate the dynamic financial patterns of small business operations.
+  Customizable repayment plans designed to accommodate the dynamic financial patterns of small business operation. (Royalty Inspired Loan Repayment)
 
 - **User-Friendly & Scalable**  
   Designed with simplicity and scalability in mind, allowing entrepreneurs to focus on business growth rather than paperwork.
@@ -33,13 +33,13 @@ Access to credit is a fundamental pillar for economic development. FlexiFund bre
 - Farmers requiring immediate support for equipment or seeds
 - Artisans seeking protection against inventory loss
 
-## 🛠️ Tech Stack (Suggested)
+## 🛠️ Tech Stack 
 
-- **Frontend:** React / Vue / Angular  
-- **Backend:** Node.js / Django / Flask  
-- **Database:** PostgreSQL / MongoDB  
+- **Frontend:** html/ css / Google material Icons
+- **Backend:** Python 3.x / Flask-JWT-extended / Flask / Flask-CORS  
+- **Database:** SQLite 
 - **AI/ML:** Python (Scikit-learn, TensorFlow), API integration for model predictions  
-- **Deployment:** Docker, AWS/GCP, CI/CD pipelines
+- **Version Control:** Github
 
 ## 📈 Future Scope
 
