@@ -1,12 +1,10 @@
-from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for, render_template, flash
+from flask import Flask, request, jsonify, session, send_from_directory, redirect, url_for
 from flask_cors import CORS
 import sqlite3
 import hashlib
 import random
 import time
-
-from algorithm import calculate_match_score, find_matches
-from sample_users import users
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -115,7 +113,6 @@ def verify_otp():
     return jsonify({'message': 'Invalid OTP'}), 401
 
 # Static pages
-
 @app.route('/register-page')
 def register_page():
     return send_from_directory('static', 'register.html')
@@ -134,86 +131,71 @@ def borrower_dashboard():
 
 @app.route('/investor-dashboard')
 def investor_dashboard():
-    return render_template('investor_dashboard.html')
+    return send_from_directory('static', 'investor_dashboard.html')
 
-@app.route('/impact-dashboard')
-def impact_dashboard():
-    return render_template('impact_dashboard.html')
+# Page for impact investor
+@app.route('/itsainvest')
+def itsainvest_page():
+    if os.path.exists('itsainvest.html'):
+        return send_from_directory('static', 'static/itsainvest.html')
+    else:
+        print("itsainvest.html not found.")
+        return jsonify({"error": "Page not found"}), 404
 
-@app.route('/commercial-dashboard')
-def commercial_dashboard():
-    return render_template('commercial_dashboard.html')
+# Page for individual commercial investment
+@app.route('/individual_investment_page')
+def individual_investment_page():
+    if os.path.exists('static/commercial-individual.html'):
+        return send_from_directory('static', 'commercial-individual.html')
+    else:
+        print("commercial-individual.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/commercial-individual')
+def commercial_individual():
+    if os.path.exists('static/commercial-individual.html'):
+        return send_from_directory('static', 'commercial-individual.html')
+    else:
+        print("commercial-individual.html not found.")
+        return jsonify({"error": "Page not found"}), 404
 
-@app.route('/matchmaking', methods=['GET'])
-def matchmaking():
-    current_user = users[0]
-    all_values = set()
-    all_industries = set()
-    all_skills = set()
-    all_goals = set()
+@app.route('/commercial-group')
+def commercial_group():
+    if os.path.exists('static/commercial-group.html'):
+        return send_from_directory('static', 'commercial-group.html')
+    else:
+        print("commercial-group.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/profile')
+def profile():
+    if os.path.exists('static/profile.html'):
+        return send_from_directory('static', 'profile.html')
+    else:
+        print("profile.html not found.")
+        return jsonify({"error": "Page not found"}), 404
+    
+@app.route('/logout')
+def logout():
+    session.clear()  # Also clears session data
+    if os.path.exists('static/login.html'):
+        return send_from_directory('static', 'login.html')
+    else:
+        print("login not found.")
+        return jsonify({"error": "Page not found"}), 404
 
-    for user in users:
-        all_values.update(user['values'])
-        all_industries.update(user['industry'])
-        all_skills.update(user['skills'])
-        all_goals.update(user['goals'])
-
-    return render_template(
-        'matchmaking.html',
-        current_user=current_user,
-        all_values=sorted(list(all_values)),
-        all_industries=sorted(list(all_industries)),
-        all_skills=sorted(list(all_skills)),
-        all_goals=sorted(list(all_goals))
-    )
-
-@app.route('/find_matches', methods=['POST'])
-def find_matches_route():
-    current_user = users[0]
-    role = request.form.get('role')
-    values = request.form.getlist('values')
-    industries = request.form.getlist('industry')
-    skills = request.form.getlist('skills')
-    goals = request.form.getlist('goals')
-    experience_min = int(request.form.get('experience_min', 0))
-    experience_max = int(request.form.get('experience_max', 30))
-
-    criteria = {
-        'role': role,
-        'values': values,
-        'industry': industries,
-        'skills': skills,
-        'goals': goals,
-        'experience_min': experience_min,
-        'experience_max': experience_max
-    }
-
-    matches = find_matches(current_user, criteria, users)
-
-    return render_template(
-        'matches.html',
-        matches=matches,
-        criteria=criteria,
-        current_user=current_user
-    )
-
-@app.route('/match-results')
-def match_results():
-    matches = [
-        {
-            'borrower_name': 'Jane Doe',
-            'investor_name': 'John Smith',
-            'shared_vision': 'Sustainable Agriculture',
-            'match_score': 92
-        },
-        {
-            'borrower_name': 'Ali Khan',
-            'investor_name': 'Lena Wong',
-            'shared_vision': 'Green Energy',
-            'match_score': 88
-        }
-    ]
-    return render_template('matches.html', matches=matches)
+    
+@app.route('/back_dashboard')
+def back_dashboard():
+    if os.path.exists('static/investor_dashboard.html'):
+        return send_from_directory('static', 'investor_dashboard.html')
+    else:
+        print("investor_dashboard not found.")
+        return jsonify({"error": "Page not found"}), 404
+  
+@app.route('/chatbot')
+def chatbot():
+    return send_from_directory('static','chatbot.html')        
 
 if __name__ == '__main__':
     init_db()
