@@ -142,7 +142,7 @@ def register():
         c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, role))
         conn.commit()
         conn.close()
-        return jsonify({'message': 'User registered successfully'})
+        return jsonify({'message': 'User registered successfully! Redirecting to Account Aggregator Framework'})
     except sqlite3.IntegrityError:
         return jsonify({'message': 'Username already exists'}), 400
 
@@ -329,14 +329,14 @@ def match_results():
     # Sample static matches for now
     matches = [
         {
-            'borrower_name': 'Jane Doe',
-            'investor_name': 'John Smith',
+            'borrower_name': 'Poonguzhali',
+            'investor_name': 'Karkuzhali',
             'shared_vision': 'Sustainable Agriculture',
             'match_score': 92
         },
         {
             'borrower_name': 'Ali Khan',
-            'investor_name': 'Lena Wong',
+            'investor_name': 'Shah Rukh Khan',
             'shared_vision': 'Green Energy',
             'match_score': 88
         }
