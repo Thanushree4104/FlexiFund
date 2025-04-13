@@ -1,51 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Royalty-Based Repayment (Frontend Demo)</title>
+  <meta charset="UTF-8" />
+  <title>FlexiFund | Royalty-Based Repayment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f4f8;
-      padding: 20px;
+    * {
+      box-sizing: border-box;
     }
 
-    h2 {
-      color: #333;
+    body {
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      background-color: #0a0f1a;
+      background-image: radial-gradient(circle at top center, #112244 0%, #0a0f1a 70%);
+      color: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
     }
 
     .container {
+      background: rgba(17, 28, 48, 0.9);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
       max-width: 600px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin: auto;
+      box-shadow: 0 0 25px rgba(0, 217, 255, 0.15), 0 0 45px rgba(0, 217, 255, 0.05);
+      animation: floatIn 0.9s ease-out;
     }
 
-    input, button {
-      padding: 10px;
-      margin-top: 10px;
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 30px;
+      color: #00d9ff;
+      text-shadow: 0 0 12px #00d9ff, 0 0 24px #00d9ff;
+      text-align: center;
+      margin-bottom: 25px;
+      letter-spacing: 2px;
+    }
+
+    h2, h3 {
+      color: #8ab4f8;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 500;
+    }
+
+    input {
       width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #1e2b40;
+      color: #f1f1f1;
+      font-size: 15px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus {
+      background: #263a55;
+      outline: none;
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      background: linear-gradient(145deg, #00d9ff, #007bff);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 14px;
       font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 0 16px #00d9ff99;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px #00d9ffff;
+    }
+
+    p {
+      font-size: 15px;
+      margin: 10px 0;
+    }
+
+    .highlight {
+      color: #00d9ff;
+      font-weight: 500;
     }
 
     .log {
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      margin-top: 20px;
-      padding: 10px;
+      margin-top: 25px;
+      background: #101722;
+      border: 1px solid #263a55;
+      padding: 15px;
+      border-radius: 12px;
       max-height: 200px;
-      overflow-y: scroll;
+      overflow-y: auto;
+      font-size: 14px;
     }
 
     .log p {
-      margin: 10px 0;
+      margin: 8px 0;
+      border-bottom: 1px solid #1e2b40;
+      padding-bottom: 5px;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="logo">FlexiFund</div>
     <h2>Royalty-Based Loan Repayment</h2>
 
     <p><strong>Loan Amount:</strong> ₹10,000</p>
@@ -53,14 +139,14 @@
     <p><strong>Threshold Profit:</strong> ₹1,000</p>
     <p><strong>Royalty Percentage:</strong> 10%</p>
 
-    <label>Enter Credited Income:</label>
+    <label for="incomeInput">Enter Credited Income:</label>
     <input type="number" id="incomeInput" placeholder="E.g. 2000">
     <button onclick="simulateIncome()">Simulate Income</button>
 
     <h3>Status</h3>
-    <p>Borrower Balance: ₹<span id="borrowerBalance">0</span></p>
-    <p>Investor Received: ₹<span id="investorBalance">0</span></p>
-    <p>Loan Remaining: ₹<span id="loanRemaining">15000</span></p>
+    <p>Borrower Balance: ₹<span class="highlight" id="borrowerBalance">0</span></p>
+    <p>Investor Received: ₹<span class="highlight" id="investorBalance">0</span></p>
+    <p>Loan Remaining: ₹<span class="highlight" id="loanRemaining">15000</span></p>
 
     <div class="log" id="logBox">
       <strong>Transaction Log:</strong>
@@ -80,7 +166,7 @@
     function simulateIncome() {
       const income = parseFloat(document.getElementById("incomeInput").value);
       if (isNaN(income) || income <= 0) {
-        alert("Please enter a valid amount.");
+        alert("Please enter a valid income amount.");
         return;
       }
 
@@ -116,12 +202,12 @@
     function logTransaction(income, royalty, paidRoyalty) {
       const logBox = document.getElementById("logBox");
       const msg = `<p>
-        Credited: ₹${income.toFixed(2)} <br>
+        Credited: ₹${income.toFixed(2)}<br>
         ${paidRoyalty 
-          ? `Royalty Paid: -₹${royalty.toFixed(2)} to Investor` 
-          : "No Royalty Paid"} <br>
+          ? `<span class="highlight">Royalty Paid: -₹${royalty.toFixed(2)} to Investor</span>` 
+          : `<span style="color:#ff7575;">No Royalty Paid</span>`}<br>
         New Borrower Balance: ₹${borrowerBalance.toFixed(2)}
-        <hr></p>`;
+      </p>`;
       logBox.innerHTML = msg + logBox.innerHTML;
     }
   </script>
