@@ -116,7 +116,11 @@
 </head>
 <body>
   <div class="register-container">
-    <div class="logo">FlexiFund</div>
+    <div class="logo">
+      <img src="/static/images/dwdfw.png" alt="FlexiFund Logo" style="width: 80px; margin-bottom: 10px;" />
+      <div>FlexiFund</div>
+    </div>
+    
     <h2>Create your FlexiFund account</h2>
     <form id="registerForm">
       <input type="text" name="username" placeholder="Username" required /><br />
@@ -142,7 +146,7 @@
       });
       const result = await response.json();
       alert(result.message);
-      if (result.message === 'User registered successfully') {
+      if (result.message === 'User registered successfully. Redirecting to Account Aggregator Framework') {
         window.location.href = '/login-page';
       }
     };

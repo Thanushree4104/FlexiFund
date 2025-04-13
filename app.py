@@ -98,6 +98,7 @@ def get_and_calculate_credit_score(user_id):
             + geo_stability_score * weights["geo_stability"]
             + business_docs_score * weights["business_docs"]
         )
+        
         print(f"Calculated final score: {final_score}")
 
         # Update the credit score and last calculated date in the database
@@ -201,7 +202,7 @@ def verify_otp():
 
     if user_otp == real_otp:
         if role == 'borrower':
-            return jsonify({'message': f'Welcome Borrower! Your user ID is {user_id}', 'redirect_to': '/borrower-dashboard'})
+            return jsonify({'message': 'Welcome Borrower!', 'redirect_to': '/borrower-dashboard'})
         elif role == 'investor':
             return jsonify({'message': 'Welcome Investor!', 'redirect_to': '/investor-dashboard'})
     return jsonify({'message': 'Invalid OTP'}), 401
@@ -287,7 +288,7 @@ def matchmaking():
         all_skills=sorted(list(all_skills)),
         all_goals=sorted(list(all_goals))
     )
-
+'''
 @app.route('/find_matches', methods=['POST'])
 def find_matches_route():
     current_user = users[0]
@@ -317,9 +318,15 @@ def find_matches_route():
         criteria=criteria,
         current_user=current_user
     )
-
-@app.route('/match-results')
+'''
+@app.route('/match-results', methods=['POST', 'GET'])
 def match_results():
+    if request.method == 'POST':
+        # Process matchmaking form input here
+        # You can extract data using request.form.get('role'), etc.
+        pass  # Add matching logic here
+
+    # Sample static matches for now
     matches = [
         {
             'borrower_name': 'Jane Doe',

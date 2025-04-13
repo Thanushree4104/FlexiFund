@@ -288,7 +288,7 @@
 
       <div class="box credit-score-box">
         <h3>Credit Score</h3>
-        <p style="font-size: 24px; font-weight: bold;">{{ credit_score }}</p>
+        <div class="score-value">740 / 900</div>
         <div class="chart-container">
           <canvas id="creditChart"></canvas>
         </div>
@@ -302,7 +302,7 @@
           <option>Community</option>
           <option>Personal Loan</option>
         </select>
-        <button onclick="redirectToLoanTip()">GO</button>
+        <button onclick="redirectToLoanTip()">Get Tips</button>
       </div>
 
       <div class="box loan-simulator">
@@ -339,9 +339,9 @@
     function redirectToLoanTip() {
       const loanType = document.getElementById("loanTypeSelect").value;
       if (loanType === "RILR") {
-        window.location.href = "/royalty";
+        window.location.href = "static/royalty.html";
       } else if (loanType === "Community") {
-        window.location.href = "/community-loan";
+        window.location.href = "static/community-loan.html";
       } else if (loanType === "Personal Loan") {
         alert("Personal Loan selected.");
       } else {
@@ -409,5 +409,7 @@
   font-size: 16px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 ">Chatbot</a>
+
+
 </body>
 </html>

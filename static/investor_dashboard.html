@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlexiFund Investor Dashboard</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background-color: #2a2f4f;
+      padding: 20px;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+
+    header button {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      padding: 8px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px;
+      padding: 10px;
+      background-color: #ffffff;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      border-radius: 5px;
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    .filters select {
+      padding: 5px;
+      margin: 0 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .registration {
+      width: 90%;
+      max-width: 600px;
+      background-color: #fff;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 5px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .registration h2 {
+      margin-top: 0;
+    }
+
+    .registration form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .registration label {
+      margin-top: 10px;
+    }
+
+    .registration input, .registration select {
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .registration button {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #2a2f4f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .registration button:hover {
+      background-color: #1c1f35;
+    }
+
+    .table-container {
+      width: 90%;
+      max-width: 1000px;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #2a2f4f;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Dark Mode */
+    body.dark-mode {
+      background-color: #2a2f4f;
+      color: white;
+    }
+
+    body.dark-mode header {
+      background-color: #1c1f35;
+    }
+
+    body.dark-mode .filters,
+    body.dark-mode .registration,
+    body.dark-mode table {
+      background-color: #3c4150;
+      color: white;
+    }
+
+    body.dark-mode th {
+      background-color: #1c1f35;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      table {
+        font-size: 0.9rem;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>FlexiFund Investor Dashboard</h1>
+  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+</header>
+
+<!-- Registration Section -->
+<section class="registration">
+  <h2>Investor Registration</h2>
+  <form id="registration-form">
+    <label for="full-name">Full Name</label>
+    <input type="text" id="full-name" required>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" required>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" required>
+
+    <label for="investor-type">Investor Type</label>
+    <select id="investor-type" required>
+      <option value="impact">Impact Investor</option>
+      <option value="commercial">Commercial Investor</option>
+    </select>
+
+    <button type="submit">Register</button>
+  </form>
+</section>
+
+<!-- Filters -->
+<div class="filters">
+  <label for="filter-type">Investor Type:</label>
+  <select id="filter-type">
+    <option value="all">All</option>
+    <option value="impact">Impact Investors</option>
+    <option value="commercial">Commercial Investors</option>
+  </select>
+
+  <label for="sort-order">Sort by Name:</label>
+  <select id="sort-order">
+    <option value="asc">Ascending</option>
+    <option value="desc">Descending</option>
+  </select>
+</div>
+
+<!-- Table Section -->
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Investor Type</th>
+      </tr>
+    </thead>
+    <tbody id="investor-table-body">
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const form = document.getElementById('registration-form');
+  const investorTableBody = document.getElementById('investor-table-body');
+  const filterType = document.getElementById('filter-type');
+  const sortOrder = document.getElementById('sort-order');
+
+  let investors = JSON.parse(localStorage.getItem('investors')) || [];
+
+  function saveInvestors() {
+    localStorage.setItem('investors', JSON.stringify(investors));
+  }
+
+  function displayInvestors() {
+    investorTableBody.innerHTML = '';
+    let filteredInvestors = investors;
+
+    // Apply filter
+    const selectedFilter = filterType.value;
+    if (selectedFilter !== 'all') {
+      filteredInvestors = filteredInvestors.filter(inv => inv.type === selectedFilter);
+    }
+
+    // Apply sort
+    const selectedSort = sortOrder.value;
+    filteredInvestors.sort((a, b) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) return selectedSort === 'asc' ? -1 : 1;
+      if (a.name.toLowerCase() > b.name.toLowerCase()) return selectedSort === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    // Display
+    filteredInvestors.forEach(inv => {
+      const row = `<tr>
+        <td>${inv.name}</td>
+        <td>${inv.email}</td>
+        <td>${inv.type.charAt(0).toUpperCase() + inv.type.slice(1)}</td>
+      </tr>`;
+      investorTableBody.innerHTML += row;
+    });
+  }
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const name = document.getElementById('full-name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const type = document.getElementById('investor-type').value;
+
+    const newInvestor = { name, email, password, type };
+    investors.push(newInvestor);
+    saveInvestors();
+    displayInvestors();
+    form.reset();
+    alert('Investor Registered Successfully!');
+  });
+
+  filterType.addEventListener('change', displayInvestors);
+  sortOrder.addEventListener('change', displayInvestors);
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+  }
+
+  // Initial display
+  displayInvestors();
+</script>
+
+</body>
+</html>
