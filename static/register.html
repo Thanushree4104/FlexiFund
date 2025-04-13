@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlexiFund | Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rubik:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      background-color: #0a0f1a;
+      background-image: radial-gradient(circle at top center, #112244 0%, #0a0f1a 70%);
+      color: #f1f1f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .register-container {
+      background: rgba(17, 28, 48, 0.9);
+      border-radius: 20px;
+      padding: 50px 35px;
+      width: 360px;
+      box-shadow: 0 0 25px rgba(0, 217, 255, 0.15), 0 0 45px rgba(0, 217, 255, 0.05);
+      text-align: center;
+      animation: floatIn 0.9s ease-out;
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 34px;
+      color: #00d9ff;
+      text-shadow: 0 0 12px #00d9ff, 0 0 24px #00d9ff;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      font-size: 20px;
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 12px;
+      background: #1e2b40;
+      color: #f1f1f1;
+      font-size: 15px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus {
+      background: #263a55;
+      outline: none;
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+    }
+
+    button {
+      margin-top: 15px;
+      background: linear-gradient(145deg, #00d9ff, #007bff);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 0 16px #00d9ff99;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px #00d9ffff;
+    }
+
+    p {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #bbbbbb;
+    }
+
+    a {
+      color: #00d9ff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <div class="logo">FlexiFund</div>
+    <h2>Create your FlexiFund account</h2>
+    <form id="registerForm">
+      <input type="text" name="username" placeholder="Username" required /><br />
+      <input type="password" name="password" placeholder="Password" required /><br />
+      <input type="text" name="role" placeholder="Role (borrower/investor)" required /><br />
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login-page">Login here</a></p>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').onsubmit = async function (e) {
+      e.preventDefault();
+      const formData = {
+        username: this.username.value,
+        password: this.password.value,
+        role: this.role.value
+      };
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const result = await response.json();
+      alert(result.message);
+      if (result.message === 'User registered successfully') {
+        window.location.href = '/login-page';
+      }
+    };
+  </script>
+</body>
+</html>
