@@ -53,3 +53,9 @@ Access to credit is a fundamental pillar for economic development. FlexiFund bre
 ---
 
 **FlexiFund** — Bridging the financial gap, one business at a time.
+
+**Clone this Repository**
+- To clone this repository to your local machine, open your terminal and run:
+```bash
+git clone https://github.com/Thanushree4104/FlexiFund
+```
